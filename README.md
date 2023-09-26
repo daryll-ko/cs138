@@ -1,3 +1,3 @@
 # `cs138`
 
-Public files for CS 138 (Introduction to Numerical Computing II).
+Public files for CS 138 (Elementary Numerical Computing II).
