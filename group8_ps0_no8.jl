@@ -17,6 +17,7 @@ end
 # ╔═╡ f4ac78d5-c204-43df-a140-c0d51fd7ebaa
 begin
 	using Colors, ColorVectorSpace, ImageShow, FileIO, ImageIO
+	using CommonMark
 	using LaTeXStrings
 	using PlutoUI
 end
@@ -26,6 +27,52 @@ md"## 0. Setup"
 
 # ╔═╡ 6cd4456c-5c1b-11ee-3a8b-eb49a1fb1869
 md"## 1. Most of what we do in numerical computing is just taking advantage of calculus."
+
+# ╔═╡ 779fe839-130b-4df4-83e4-7bd903569662
+cm"""
+
+Recall that
+
+<div align="center">
+
+``\dfrac{d}{dx} f(x) = \lim\limits_{\Delta x \rightarrow 0}\dfrac{f(x + \Delta x) - f(x)}{\Delta x}``.
+
+</div>
+
+"""
+
+# ╔═╡ cdba1db8-d5d0-4e6a-a75f-d09c62a895f6
+md"""
+Let's see this in action! Choose a function:
+"""
+
+# ╔═╡ 99c2ffa0-d2c5-4aa7-8fdc-4112f4b955b4
+md"We know that"
+
+# ╔═╡ 85a182ed-ad87-4abd-ab52-b74d565d7b52
+md"so we can get"
+
+# ╔═╡ 526899b1-4e20-4e3f-b9c4-2c5425a21eb9
+md"""Now drag the slider below to change the value of ``\text{exp}`` and ``\Delta x = 10^{\text{exp}}``:"""
+
+# ╔═╡ f5d4935a-bf64-4938-809d-2b74fa2e1541
+@bind exp Slider(-10:0, show_value=true)
+
+# ╔═╡ 471a55ab-69b8-4232-acc9-0f3f895dcad0
+L"""
+
+\text{exp} = %$(exp),~\Delta x = 10^{%$(exp)}
+
+"""
+
+# ╔═╡ 40c1b434-8f2c-4c84-a573-3b8941ec6627
+md"We then have"
+
+# ╔═╡ 0a73d6ae-3be4-47ab-b1bc-94259bce7e97
+md"### Integral example"
+
+# ╔═╡ 4a717a47-c1ed-48d4-a87b-2f449975470d
+md"### LinAlg example"
 
 # ╔═╡ c95fbc3e-a11a-4e4a-8305-6eda9f437df8
 md"## 2. Matrices are linear transformations."
@@ -64,8 +111,51 @@ L = \begin{bmatrix}
 
 """
 
+# ╔═╡ 68e245fd-7014-4545-9d9f-13ee791e7435
+md"""
+## Appendix
+
+Behind-the-scenes stuff!
+"""
+
 # ╔═╡ d160ece5-93e4-4319-b2ae-c7b21129eccd
 transform(a, b, c, d) = ((x₁, x₂),) -> [a*x₁ + b*x₂; c*x₁ + d*x₂]
+
+# ╔═╡ 6f38c764-d3f8-4a51-8a4a-3b7702638185
+dx_sources = [
+	(x -> x, x -> 1, "x", "1") => "f(x) = x",
+	(x -> x^2, x -> 2x, "x^{2}", "2x") => "f(x) = x²",
+	(x -> log(x), x -> 1/x, "\\ln(x)", "\\dfrac{1}{x}") => "f(x) = ln(x)",
+	(x -> sin(x), x -> cos(x), "\\sin(x)", "\\cos(x)") => "f(x) = sin(x)"
+]
+
+# ╔═╡ 7def1388-9c49-4bb4-bd27-5c758f0db02e
+md"""
+$(@bind dx_selection Select(dx_sources))
+"""
+
+# ╔═╡ 1de1ccbf-06d3-424a-8e7a-19216cb241ee
+L"""
+f(x) = %$(dx_selection[3])
+"""
+
+# ╔═╡ 0e62bfdb-3041-45ac-a144-9dfa43beec28
+L"""
+f'(x) = %$(dx_selection[4]),
+"""
+
+# ╔═╡ e86f80a5-75c3-4139-8d8e-7a8ef0296c83
+L"""
+f'(1) \approx %$(dx_selection[2](1))~\text{(analytically).}
+"""
+
+# ╔═╡ 71a8b452-b192-475c-a270-b6b77e2dea20
+Δx = 10.0^exp
+
+# ╔═╡ 8bd4d340-c8db-4dc3-9f7e-40b69060e8fd
+L"""
+f'(1) \approx \dfrac{f(1 + 10^{%$(exp)}) - f(1)}{10^{%$(exp)}} \approx %$(round((dx_selection[1](1+Δx) - dx_selection[1](1))/Δx; digits = 10))~\text{(numerically).}
+"""
 
 # ╔═╡ d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
 img_sources = [
@@ -95,6 +185,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
 ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
@@ -104,6 +195,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 [compat]
 ColorVectorSpace = "~0.10.0"
 Colors = "~0.12.10"
+CommonMark = "~0.8.12"
 FileIO = "~1.16.1"
 ImageIO = "~0.6.7"
 ImageShow = "~0.3.8"
@@ -117,7 +209,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "b3b3cf9d198aa06289822c5f9eace8fbb1ac5c83"
+project_hash = "6b530cd68ce25614939c9c3a5562212cf3e700dd"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -202,6 +294,12 @@ git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
 
+[[deps.CommonMark]]
+deps = ["Crayons", "JSON", "PrecompileTools", "URIs"]
+git-tree-sha1 = "532c4185d3c9037c0237546d817858b23cf9e071"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.8.12"
+
 [[deps.Compat]]
 deps = ["UUIDs"]
 git-tree-sha1 = "e460f044ca8b99be31d35fe54fc33a5c33dd8ed7"
@@ -216,6 +314,11 @@ weakdeps = ["Dates", "LinearAlgebra"]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "1.0.5+0"
+
+[[deps.Crayons]]
+git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.1"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -694,12 +797,30 @@ version = "17.4.0+0"
 # ╟─446d5f05-0643-4e70-9a0b-5fb2f85e2fce
 # ╠═f4ac78d5-c204-43df-a140-c0d51fd7ebaa
 # ╟─6cd4456c-5c1b-11ee-3a8b-eb49a1fb1869
+# ╟─779fe839-130b-4df4-83e4-7bd903569662
+# ╟─cdba1db8-d5d0-4e6a-a75f-d09c62a895f6
+# ╟─7def1388-9c49-4bb4-bd27-5c758f0db02e
+# ╟─1de1ccbf-06d3-424a-8e7a-19216cb241ee
+# ╟─99c2ffa0-d2c5-4aa7-8fdc-4112f4b955b4
+# ╟─0e62bfdb-3041-45ac-a144-9dfa43beec28
+# ╟─85a182ed-ad87-4abd-ab52-b74d565d7b52
+# ╟─e86f80a5-75c3-4139-8d8e-7a8ef0296c83
+# ╟─526899b1-4e20-4e3f-b9c4-2c5425a21eb9
+# ╟─f5d4935a-bf64-4938-809d-2b74fa2e1541
+# ╟─471a55ab-69b8-4232-acc9-0f3f895dcad0
+# ╟─40c1b434-8f2c-4c84-a573-3b8941ec6627
+# ╟─8bd4d340-c8db-4dc3-9f7e-40b69060e8fd
+# ╠═0a73d6ae-3be4-47ab-b1bc-94259bce7e97
+# ╠═4a717a47-c1ed-48d4-a87b-2f449975470d
 # ╟─c95fbc3e-a11a-4e4a-8305-6eda9f437df8
-# ╟─0dcea395-8b61-4dfe-b7c5-a4c17380d766
 # ╟─4d55e733-a8dd-444a-92b8-cfca6f814cec
 # ╟─34abae52-63ee-468f-89fd-1e18d1daa25d
 # ╟─f933fabc-a8cf-415e-a52c-fa7b91708fb2
+# ╟─0dcea395-8b61-4dfe-b7c5-a4c17380d766
+# ╟─68e245fd-7014-4545-9d9f-13ee791e7435
 # ╟─d160ece5-93e4-4319-b2ae-c7b21129eccd
+# ╟─6f38c764-d3f8-4a51-8a4a-3b7702638185
+# ╟─71a8b452-b192-475c-a270-b6b77e2dea20
 # ╟─d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
 # ╟─484d83e0-423a-449a-b982-04bcbcc33a66
 # ╟─12e19726-8cae-4db5-b1bd-daec9a9c21bd
