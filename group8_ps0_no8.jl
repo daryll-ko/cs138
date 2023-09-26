@@ -28,6 +28,9 @@ md"## 0. Setup"
 # ╔═╡ 6cd4456c-5c1b-11ee-3a8b-eb49a1fb1869
 md"## 1. Most of what we do in numerical computing is just taking advantage of calculus."
 
+# ╔═╡ 7b446c3e-411f-4f91-b202-3385e004c5cd
+md"### Derivatives"
+
 # ╔═╡ 779fe839-130b-4df4-83e4-7bd903569662
 cm"""
 
@@ -56,7 +59,7 @@ md"so we can get"
 md"""Now drag the slider below to change the value of ``\text{exp}`` and ``\Delta x = 10^{\text{exp}}``:"""
 
 # ╔═╡ f5d4935a-bf64-4938-809d-2b74fa2e1541
-@bind exp Slider(-10:0, show_value=true)
+@bind exp Slider(-7:0, show_value=true)
 
 # ╔═╡ 471a55ab-69b8-4232-acc9-0f3f895dcad0
 L"""
@@ -69,7 +72,63 @@ L"""
 md"We then have"
 
 # ╔═╡ 0a73d6ae-3be4-47ab-b1bc-94259bce7e97
-md"### Integral example"
+md"### Integrals"
+
+# ╔═╡ e66561fb-10d5-41e0-aba5-20811301831c
+cm"""
+
+Recall that
+
+<div align="center">
+
+``\displaystyle\int_{a}^{b} f(x)~dx = \lim\limits_{n \rightarrow \infty}\sum\limits_{i = 1}^{n} f(x_{i})\Delta x``,
+
+</div>
+
+"""
+
+# ╔═╡ c626afe6-57e6-4625-9ac7-e7f9cb5daae3
+md"where"
+
+# ╔═╡ 0c40ac6e-dbbd-4620-9cab-d0c5c43991f0
+L"""
+\Delta x = \dfrac{b - a}{n}
+"""
+
+# ╔═╡ 48cc5e4d-d40f-4a02-9263-4ce6373fbc4d
+md"and"
+
+# ╔═╡ 5b3611e3-cab1-46d1-96b2-3d334f5852b2
+L"""
+x_{i} = a + \left(\dfrac{b-a}{n}\right)i.
+"""
+
+# ╔═╡ de2685b8-faec-4993-9739-2d3e9f335436
+md"""
+Let's see this in action! Choose a function:
+"""
+
+# ╔═╡ 42ceee55-c13d-46ee-bfca-c679452753d6
+md"We know that"
+
+# ╔═╡ 0f828f1b-d374-4ce2-bc38-496e7725fed6
+md"so we can get"
+
+# ╔═╡ a2668bfa-2dd2-46f4-8431-950b34819fcf
+md"""Now drag the slider below to change the value of ``\text{exp}`` and ``n = 10^{\text{exp}}``:"""
+
+# ╔═╡ cb94ddfa-172e-4185-9d51-2d4823dec0f2
+@bind exp₂ Slider(0:7, show_value=true)
+
+# ╔═╡ 5378c49e-d79c-4109-9f39-8832deab2b3e
+L"""
+
+\text{exp} = %$(exp₂),~n = 10^{%$(exp₂)}
+
+"""
+
+# ╔═╡ c9a831f7-fb86-4c94-b724-068880d75d09
+md"We then have"
 
 # ╔═╡ 4a717a47-c1ed-48d4-a87b-2f449975470d
 md"### LinAlg example"
@@ -122,31 +181,63 @@ Behind-the-scenes stuff!
 transform(a, b, c, d) = ((x₁, x₂),) -> [a*x₁ + b*x₂; c*x₁ + d*x₂]
 
 # ╔═╡ 6f38c764-d3f8-4a51-8a4a-3b7702638185
-dx_sources = [
+derivative_sources = [
+	(x -> 1, x -> 0, "1", "0") => "f(x) = 1",
 	(x -> x, x -> 1, "x", "1") => "f(x) = x",
 	(x -> x^2, x -> 2x, "x^{2}", "2x") => "f(x) = x²",
 	(x -> log(x), x -> 1/x, "\\ln(x)", "\\dfrac{1}{x}") => "f(x) = ln(x)",
-	(x -> sin(x), x -> cos(x), "\\sin(x)", "\\cos(x)") => "f(x) = sin(x)"
+	(x -> sin(x), x -> cos(x), "\\sin(x)", "\\cos(x)") => "f(x) = sin(x)",
+	(x -> cos(x), x -> -sin(x), "\\cos(x)", "-\\sin(x)") => "f(x) = cos(x)"
 ]
 
 # ╔═╡ 7def1388-9c49-4bb4-bd27-5c758f0db02e
 md"""
-$(@bind dx_selection Select(dx_sources))
+$(@bind derivative_selection Select(derivative_sources))
 """
 
 # ╔═╡ 1de1ccbf-06d3-424a-8e7a-19216cb241ee
 L"""
-f(x) = %$(dx_selection[3])
+f(x) = %$(derivative_selection[3])
 """
 
 # ╔═╡ 0e62bfdb-3041-45ac-a144-9dfa43beec28
 L"""
-f'(x) = %$(dx_selection[4]),
+f'(x) = %$(derivative_selection[4]),
 """
 
 # ╔═╡ e86f80a5-75c3-4139-8d8e-7a8ef0296c83
 L"""
-f'(1) \approx %$(dx_selection[2](1))~\text{(analytically).}
+f'(1) \approx %$(round(derivative_selection[2](1); digits = 6))~\text{(analytically).}
+"""
+
+# ╔═╡ aeee7d88-eb22-4adf-a611-48e44fcc8d55
+integral_sources = [
+	(x -> 1, x -> x, "1", "x") => "f(x) = 1",
+	(x -> x, x -> x^2/2, "x", "\\dfrac{x^{2}}{2}") => "f(x) = x",
+	(x -> x^2, x -> x^3/3, "x^{2}", "\\dfrac{x^{3}}{3}") => "f(x) = x²",
+	(x -> 1/x, x -> log(x), "\\dfrac{1}{x}", "\\ln(x)") => "f(x) = 1/x",
+	(x -> sin(x), x -> -cos(x), "\\sin(x)", "-\\cos(x)") => "f(x) = sin(x)",
+	(x -> cos(x), x -> sin(x), "\\cos(x)", "\\sin(x)") => "f(x) = cos(x)"
+]
+
+# ╔═╡ 3fa1143c-f8ac-4ae8-8541-4ee9adba5322
+md"""
+$(@bind integral_selection Select(integral_sources))
+"""
+
+# ╔═╡ dc4cea1e-4920-4336-bc4a-a43532815f1f
+L"""
+f(x) = %$(integral_selection[3])
+"""
+
+# ╔═╡ 9ddfb070-70ec-4e2a-9dae-c981622f4fc2
+L"""
+\displaystyle\int f(x)~dx = %$(integral_selection[4]),
+"""
+
+# ╔═╡ 2ca18fed-5c42-49f3-8f60-60095b6077d2
+L"""
+\displaystyle\int_{1}^{2} f(x)~dx \approx %$(round(integral_selection[2](2) - integral_selection[2](1); digits = 6))~\text{(analytically).}
 """
 
 # ╔═╡ 71a8b452-b192-475c-a270-b6b77e2dea20
@@ -154,7 +245,15 @@ f'(1) \approx %$(dx_selection[2](1))~\text{(analytically).}
 
 # ╔═╡ 8bd4d340-c8db-4dc3-9f7e-40b69060e8fd
 L"""
-f'(1) \approx \dfrac{f(1 + 10^{%$(exp)}) - f(1)}{10^{%$(exp)}} \approx %$(round((dx_selection[1](1+Δx) - dx_selection[1](1))/Δx; digits = 10))~\text{(numerically).}
+f'(1) \approx \dfrac{f(1 + 10^{%$(exp)}) - f(1)}{10^{%$(exp)}} \approx %$(round((derivative_selection[1](1+Δx) - derivative_selection[1](1))/Δx; digits = 6))~\text{(numerically).}
+"""
+
+# ╔═╡ 063fa03d-1b70-480c-93e2-48fc275d0da7
+n = 10^exp₂
+
+# ╔═╡ f276b4fa-1226-4a57-8c88-c25c29dcbf8f
+L"""
+\displaystyle\int_{1}^{2}f(x)~dx \approx \sum\limits_{i=1}^{10^{%$(exp₂)}}f\left(1 + \dfrac{i}{n}\right)~\dfrac{1}{n} \approx %$(round(sum([integral_selection[1](1 + i/n) for i in 1:n])/n; digits = 6))~\text{(numerically).}
 """
 
 # ╔═╡ d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
@@ -797,6 +896,7 @@ version = "17.4.0+0"
 # ╟─446d5f05-0643-4e70-9a0b-5fb2f85e2fce
 # ╠═f4ac78d5-c204-43df-a140-c0d51fd7ebaa
 # ╟─6cd4456c-5c1b-11ee-3a8b-eb49a1fb1869
+# ╟─7b446c3e-411f-4f91-b202-3385e004c5cd
 # ╟─779fe839-130b-4df4-83e4-7bd903569662
 # ╟─cdba1db8-d5d0-4e6a-a75f-d09c62a895f6
 # ╟─7def1388-9c49-4bb4-bd27-5c758f0db02e
@@ -810,8 +910,25 @@ version = "17.4.0+0"
 # ╟─471a55ab-69b8-4232-acc9-0f3f895dcad0
 # ╟─40c1b434-8f2c-4c84-a573-3b8941ec6627
 # ╟─8bd4d340-c8db-4dc3-9f7e-40b69060e8fd
-# ╠═0a73d6ae-3be4-47ab-b1bc-94259bce7e97
-# ╠═4a717a47-c1ed-48d4-a87b-2f449975470d
+# ╟─0a73d6ae-3be4-47ab-b1bc-94259bce7e97
+# ╟─e66561fb-10d5-41e0-aba5-20811301831c
+# ╟─c626afe6-57e6-4625-9ac7-e7f9cb5daae3
+# ╟─0c40ac6e-dbbd-4620-9cab-d0c5c43991f0
+# ╟─48cc5e4d-d40f-4a02-9263-4ce6373fbc4d
+# ╟─5b3611e3-cab1-46d1-96b2-3d334f5852b2
+# ╟─de2685b8-faec-4993-9739-2d3e9f335436
+# ╟─3fa1143c-f8ac-4ae8-8541-4ee9adba5322
+# ╟─dc4cea1e-4920-4336-bc4a-a43532815f1f
+# ╟─42ceee55-c13d-46ee-bfca-c679452753d6
+# ╟─9ddfb070-70ec-4e2a-9dae-c981622f4fc2
+# ╟─0f828f1b-d374-4ce2-bc38-496e7725fed6
+# ╟─2ca18fed-5c42-49f3-8f60-60095b6077d2
+# ╟─a2668bfa-2dd2-46f4-8431-950b34819fcf
+# ╟─cb94ddfa-172e-4185-9d51-2d4823dec0f2
+# ╟─5378c49e-d79c-4109-9f39-8832deab2b3e
+# ╟─c9a831f7-fb86-4c94-b724-068880d75d09
+# ╟─f276b4fa-1226-4a57-8c88-c25c29dcbf8f
+# ╟─4a717a47-c1ed-48d4-a87b-2f449975470d
 # ╟─c95fbc3e-a11a-4e4a-8305-6eda9f437df8
 # ╟─4d55e733-a8dd-444a-92b8-cfca6f814cec
 # ╟─34abae52-63ee-468f-89fd-1e18d1daa25d
@@ -820,7 +937,9 @@ version = "17.4.0+0"
 # ╟─68e245fd-7014-4545-9d9f-13ee791e7435
 # ╟─d160ece5-93e4-4319-b2ae-c7b21129eccd
 # ╟─6f38c764-d3f8-4a51-8a4a-3b7702638185
+# ╟─aeee7d88-eb22-4adf-a611-48e44fcc8d55
 # ╟─71a8b452-b192-475c-a270-b6b77e2dea20
+# ╟─063fa03d-1b70-480c-93e2-48fc275d0da7
 # ╟─d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
 # ╟─484d83e0-423a-449a-b982-04bcbcc33a66
 # ╟─12e19726-8cae-4db5-b1bd-daec9a9c21bd
