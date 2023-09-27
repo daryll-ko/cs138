@@ -26,7 +26,7 @@ end
 md"## 0. Setup"
 
 # ╔═╡ 6cd4456c-5c1b-11ee-3a8b-eb49a1fb1869
-md"## 1. Most of what we do in numerical computing is just taking advantage of calculus."
+md"## 1. Most of what we do in numerical computing is just taking advantage of definitions from Math subjects."
 
 # ╔═╡ 7b446c3e-411f-4f91-b202-3385e004c5cd
 md"### Derivatives"
@@ -136,6 +136,14 @@ md"### LinAlg example"
 # ╔═╡ c95fbc3e-a11a-4e4a-8305-6eda9f437df8
 md"## 2. Matrices are linear transformations."
 
+# ╔═╡ 785e2642-2ee1-46c1-ae8e-d487f864e6db
+html"""
+<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.2.0/src/lite-yt-embed.js" integrity="sha256-wwYlfEzWnCf2nFlIQptfFKdUmBeH5d3G7C2352FdpWE=" crossorigin="anonymous" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.2.0/src/lite-yt-embed.css" integrity="sha256-99PgDZnzzjO63EyMRZfwIIA+i+OS2wDx6k+9Eo7JDKo=" crossorigin="anonymous">
+
+<lite-youtube videoid=kYB8IZa5AuE params="modestbranding=1&rel=0"></lite-youtube>
+"""
+
 # ╔═╡ 4d55e733-a8dd-444a-92b8-cfca6f814cec
 md"""
 The elements of the ``2 \times 2`` matrix below are *scrubbable*; watch the values of ``L`` and ``\text{det}`` change as you edit the individual values!
@@ -155,6 +163,11 @@ begin
 	$(@bind c Scrubbable(scrubbable_range; default=0.0))
 	$(@bind d Scrubbable(scrubbable_range; default=1.0))
 	``)``
+
+	To reset the matrix to ``I_{2}``:
+
+	1) Unhide this cell's code by clicking on the upper left eye icon
+	2) Run this cell by clicking the bottom-right play icon
 	"""
 end
 
@@ -176,9 +189,6 @@ md"""
 
 Behind-the-scenes stuff!
 """
-
-# ╔═╡ d160ece5-93e4-4319-b2ae-c7b21129eccd
-transform(a, b, c, d) = ((x₁, x₂),) -> [a*x₁ + b*x₂; c*x₁ + d*x₂]
 
 # ╔═╡ 6f38c764-d3f8-4a51-8a4a-3b7702638185
 derivative_sources = [
@@ -256,9 +266,24 @@ L"""
 \displaystyle\int_{1}^{2}f(x)~dx \approx \sum\limits_{i=1}^{10^{%$(exp₂)}}f\left(1 + \dfrac{i}{n}\right)~\dfrac{1}{n} \approx %$(round(sum([integral_selection[1](1 + i/n) for i in 1:n])/n; digits = 6))~\text{(numerically).}
 """
 
+# ╔═╡ d160ece5-93e4-4319-b2ae-c7b21129eccd
+transform(a, b, c, d) = ((x₁, x₂),) -> [a*x₁ + b*x₂; c*x₁ + d*x₂]
+
+# ╔═╡ 16f509b1-47e2-4f19-b4e4-f40e4d142cbb
+T = transform(a, b, c, d)
+
+# ╔═╡ b74baf1b-d39d-4f30-b501-b28ef192866a
+L = [
+	a b
+	c d
+]
+
+# ╔═╡ 2f297299-6b2c-4ce2-b996-4758c8f3c6a2
+det = a*d - b*c
+
 # ╔═╡ d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
 img_sources = [
-	"https://github.com/daryll-ko/cs138/blob/main/assets/cartesian_plane.png?raw=true" => "Cartesian Plane",
+	"https://github.com/daryll-ko/cs138/blob/main/assets/black.png?raw=true" => "Blank Canvas",
 	"https://github.com/daryll-ko/cs138/blob/main/assets/dcs_logo.png?raw=true" => "DCS Logo",
 	"https://github.com/daryll-ko/cs138/blob/main/assets/scl_logo.png?raw=true" => "SCL Logo"
 ]
@@ -278,6 +303,81 @@ img_filename = download(img_source)
 
 # ╔═╡ 6bffce36-e6ba-472c-a9e5-e46ae473e2df
 vanilla_img = load(img_filename);
+
+# ╔═╡ b048c415-2d03-417f-a067-8b0281090187
+begin
+	white(c::RGB) = RGB(1,1,1)
+	white(c::RGBA) = RGBA(1,1,1,0.75)
+end
+
+# ╔═╡ 21288e3b-fb8e-4694-8295-c7dd4ab77348
+# ref: https://computationalthinking.mit.edu/Fall23/images_abstractions/transformations_and_autodiff/
+
+function trygetpixel(img::AbstractMatrix, x::Float64, y::Float64)
+	rows, cols = size(img)
+
+	# [-1, 1] -> [1, 1]
+	# [-1, -1] -> [rows, 1]
+	# [1, 1] -> [1, cols]
+	# [1, -1] -> [rows, cols]
+
+	i = floor(Int, rows/2 - 1/y * rows/2)
+	j = floor(Int, cols/2 + 1/x * cols/2)
+	
+	# "The linear map [-1,1] ↦ [0,1]"
+	# f = t -> (t - -1.0)/(1.0 - -1.0)
+	
+	# i = floor(Int, rows *  f(-y))
+	# j = floor(Int, cols *  f(x * (rows / cols)))
+ 
+	if 1 < i ≤ rows && 1 < j ≤ cols
+		img[i,j]
+	else
+		white(img[1,1])
+	end
+end
+
+# ╔═╡ 38b73949-b756-4ee5-b558-e7fb96657c4e
+# ref: https://computationalthinking.mit.edu/Fall23/images_abstractions/transformations_and_autodiff/
+
+function with_gridlines(img::Array{<:Any,2}; n=16)	
+	sep_i = size(img, 1) ÷ n
+	sep_j = size(img, 2) ÷ n
+	
+	result = copy(img)
+	# stroke = zero(eltype(img))#RGBA(RGB(1,1,1), 0.75)
+	
+	stroke = RGBA(1, 1, 1, 0.75)
+	
+	result[1:sep_i:end, :] .= stroke
+	result[:, 1:sep_j:end] .= stroke
+
+	# a second time, to create a line 2 pixels wide
+	result[2:sep_i:end, :] .= stroke
+	result[:, 2:sep_j:end] .= stroke
+	
+	 result[  sep_i * (n ÷2) .+ [1,2]    , :] .= RGBA(0,1,0,1)
+	result[ : ,  sep_j * (n ÷2) .+ [1,2]    ,] .= RGBA(1,0,0,1)
+	return result
+end
+
+# ╔═╡ 4900ca1a-b11e-4f42-bcd3-979f4be0aeea
+img = with_gridlines(vanilla_img);
+
+# ╔═╡ 17ae4689-8277-4d71-8c19-29611b704184
+# ref: https://computationalthinking.mit.edu/Fall23/images_abstractions/transformations_and_autodiff/
+
+[
+	if det == 0
+		RGB(1.0, 1.0, 1.0)
+	else
+		in_x, in_y =  T([out_x, out_y])
+		trygetpixel(img, in_x, in_y)
+	end
+	
+	for out_y in LinRange(1, -1, 500),
+		out_x in LinRange(-1, 1, 500)
+]
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -930,19 +1030,28 @@ version = "17.4.0+0"
 # ╟─f276b4fa-1226-4a57-8c88-c25c29dcbf8f
 # ╟─4a717a47-c1ed-48d4-a87b-2f449975470d
 # ╟─c95fbc3e-a11a-4e4a-8305-6eda9f437df8
+# ╟─785e2642-2ee1-46c1-ae8e-d487f864e6db
 # ╟─4d55e733-a8dd-444a-92b8-cfca6f814cec
 # ╟─34abae52-63ee-468f-89fd-1e18d1daa25d
 # ╟─f933fabc-a8cf-415e-a52c-fa7b91708fb2
 # ╟─0dcea395-8b61-4dfe-b7c5-a4c17380d766
+# ╠═17ae4689-8277-4d71-8c19-29611b704184
 # ╟─68e245fd-7014-4545-9d9f-13ee791e7435
-# ╟─d160ece5-93e4-4319-b2ae-c7b21129eccd
 # ╟─6f38c764-d3f8-4a51-8a4a-3b7702638185
 # ╟─aeee7d88-eb22-4adf-a611-48e44fcc8d55
 # ╟─71a8b452-b192-475c-a270-b6b77e2dea20
 # ╟─063fa03d-1b70-480c-93e2-48fc275d0da7
+# ╟─d160ece5-93e4-4319-b2ae-c7b21129eccd
+# ╟─16f509b1-47e2-4f19-b4e4-f40e4d142cbb
+# ╟─b74baf1b-d39d-4f30-b501-b28ef192866a
+# ╟─2f297299-6b2c-4ce2-b996-4758c8f3c6a2
 # ╟─d3ef7ff3-ae0b-4967-bf32-390b46af4f1b
 # ╟─484d83e0-423a-449a-b982-04bcbcc33a66
 # ╟─12e19726-8cae-4db5-b1bd-daec9a9c21bd
 # ╟─6bffce36-e6ba-472c-a9e5-e46ae473e2df
+# ╠═21288e3b-fb8e-4694-8295-c7dd4ab77348
+# ╟─b048c415-2d03-417f-a067-8b0281090187
+# ╠═38b73949-b756-4ee5-b558-e7fb96657c4e
+# ╟─4900ca1a-b11e-4f42-bcd3-979f4be0aeea
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
